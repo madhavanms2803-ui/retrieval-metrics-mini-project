@@ -80,3 +80,32 @@ SELECT post_id FROM posts ORDER BY embedding <=> $1 LIMIT 10;
 ```
 
 Wire each into `async keywordSearch(query)` and `async semanticSearch(query)` returning ranked `post_id` lists, then run your exact same metric code. The metrics do not change, only where the ranked lists come from.
+
+
+## Results and interpretation
+
+Run the evaluator with:
+
+```bash
+node eval.js
+```
+
+### Comparison table
+
+| Query | Keyword rank | Semantic rank |
+|---|---|---|
+| my redis cache keeps showing old data | 8 | 1 |
+| how do I add semantic search to a table I already have | miss | 2 |
+| redis or memcached for caching | 1 | 2 |
+| why did my query get slower after I added an index | miss | 1 |
+| what does ACID actually guarantee | 2 | 1 |
+| how do I keep my postgres online while changing the schema | 6 | 3 |
+| my background jobs stop after every deploy | miss | 2 |
+| how do I let my database accept more writes per second | 4 | 1 |
+| sql or nosql for a new product | 1 | 3 |
+| why does my redis memory keep climbing | miss | 2 |
+| **Summary** | **MRR 0.30 · Recall@10 0.60** | **MRR 0.67 · Recall@10 1.00** |
+
+### Interpretation
+
+Semantic search performs better overall, with an MRR of 0.67 compared with keyword search's 0.30 and Recall@10 of 1.00 compared with 0.60. Keyword search wins on "redis or memcached for caching" (rank 1 versus 2) and "sql or nosql for a new product" (rank 1 versus 3), where exact technology names and direct comparison terms closely match the documents. Semantic search wins on the remaining eight queries, especially symptom-based and paraphrased questions such as stale Redis data, slow queries after adding an index, and background jobs stopping after deployment. These results show that semantic retrieval is better at understanding intent when the query wording differs from the document wording. A team should still retain keyword search because exact-term matches can outperform semantic retrieval on some queries, and combining both approaches may improve overall retrieval quality.
