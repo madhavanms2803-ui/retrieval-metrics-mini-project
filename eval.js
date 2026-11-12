@@ -5,6 +5,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const TOP_K = 10;
+
 function parseCsvLine(line) {
   const fields = [];
   let value = '';
@@ -64,7 +66,7 @@ const results = JSON.parse(
 function rankOf(rankedIds, correctIds) {
   const relevantIds = new Set(correctIds.map(Number));
 
-  for (let index = 0; index < rankedIds.length; index++) {
+  for (let index = 0; index < Math.min(rankedIds.length, TOP_K); index++) {
     if (relevantIds.has(Number(rankedIds[index]))) {
       return index + 1;
     }
